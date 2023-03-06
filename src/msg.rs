@@ -156,7 +156,7 @@ pub enum UpdateType {
     Discard(String),
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema, QueryResponses)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, JsonSchema, QueryResponses)]
 #[serde(rename_all = "snake_case")]
 pub enum Query {
     /// Implements CW20. Returns the current balance of the given address, 0 if unset.

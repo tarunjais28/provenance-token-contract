@@ -1,0 +1,1 @@
+19cbf257ca7afeddd84f59e853f50df9bc5a0f48f805bd7c46ae3e05ea5672c8  token_contract.wasm

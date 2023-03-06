@@ -191,9 +191,7 @@ fn transfer(
 
     // ensuring balance capital is not exceeded for an user
     let rcpt_addr = deps.api.addr_validate(&recipient)?;
-    let token_bal = BALANCES
-        .load(deps.storage, &rcpt_addr)
-        .unwrap_or(Uint128::default());
+    let token_bal = BALANCES.load(deps.storage, &rcpt_addr).unwrap_or_default();
     let bal_cap = BALANCE_CAP.load(deps.storage)?;
     if (token_bal + amount) > bal_cap {
         return Err(ContractError::CannotExceedCap {});
@@ -259,9 +257,7 @@ fn transfer_from(
 
     // ensuring balance capital is not exceeded for an user
     let rcpt_addr = deps.api.addr_validate(&recipient)?;
-    let token_bal = BALANCES
-        .load(deps.storage, &rcpt_addr)
-        .unwrap_or(Uint128::default());
+    let token_bal = BALANCES.load(deps.storage, &rcpt_addr).unwrap_or_default();
     let bal_cap = BALANCE_CAP.load(deps.storage)?;
     if (token_bal + amount) > bal_cap {
         return Err(ContractError::CannotExceedCap {});
