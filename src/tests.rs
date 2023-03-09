@@ -4,7 +4,7 @@ use crate::{
     msg::*,
 };
 use cosmwasm_std::{
-    testing::{mock_dependencies, mock_env, mock_info},
+    testing::{mock_dependencies_with_balance, mock_env, mock_info},
     Binary, Coin, CosmosMsg, Deps, DepsMut, SubMsg, Uint128, WasmMsg,
 };
 use cw20::{Cw20Coin, Cw20ReceiveMsg, MinterResponse, TokenInfoResponse};
@@ -94,7 +94,7 @@ fn do_instantiate_with_minter(
 
 #[test]
 fn test_basic() {
-    let mut deps = mock_dependencies(&[Coin {
+    let mut deps = mock_dependencies_with_balance(&[Coin {
         amount: Uint128::default(),
         denom: String::default(),
     }]);
@@ -133,7 +133,7 @@ fn test_basic() {
 
 #[test]
 fn test_mint() {
-    let mut deps = mock_dependencies(&[Coin {
+    let mut deps = mock_dependencies_with_balance(&[Coin {
         amount: Uint128::default(),
         denom: String::default(),
     }]);
@@ -182,7 +182,7 @@ fn test_mint() {
 
 #[test]
 fn test_transfer() {
-    let mut deps = mock_dependencies(&[Coin {
+    let mut deps = mock_dependencies_with_balance(&[Coin {
         amount: Uint128::default(),
         denom: String::default(),
     }]);
@@ -257,7 +257,7 @@ fn test_transfer() {
 
 #[test]
 fn test_send() {
-    let mut deps = mock_dependencies(&[Coin {
+    let mut deps = mock_dependencies_with_balance(&[Coin {
         amount: Uint128::default(),
         denom: String::default(),
     }]);
@@ -334,7 +334,7 @@ fn test_send() {
 
 #[test]
 fn test_burn() {
-    let mut deps = mock_dependencies(&[Coin {
+    let mut deps = mock_dependencies_with_balance(&[Coin {
         amount: Uint128::default(),
         denom: String::default(),
     }]);
@@ -372,7 +372,7 @@ fn test_burn() {
 
 #[test]
 fn test_update_frozen_list() {
-    let mut deps = mock_dependencies(&[Coin {
+    let mut deps = mock_dependencies_with_balance(&[Coin {
         amount: Uint128::default(),
         denom: String::default(),
     }]);

@@ -1,7 +1,7 @@
 use super::*;
 use cosmwasm_schema::QueryResponses;
 use cosmwasm_std::{Binary, StdError, StdResult, Uint128};
-use cw0::Expiration;
+use cw20::Expiration;
 use cw20::{AllowanceResponse, BalanceResponse, Cw20Coin, Logo, MinterResponse, TokenInfoResponse};
 pub use cw_controllers::ClaimsResponse;
 use schemars::JsonSchema;

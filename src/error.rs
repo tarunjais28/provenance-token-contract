@@ -38,6 +38,12 @@ pub enum ContractError {
 
     #[error("Balance is frozen")]
     BalanceFrozen {},
+
+    #[error("Invalid expiration value")]
+    InvalidExpiration {},
+
+    #[error("Duplicate initial balance addresses")]
+    DuplicateInitialBalanceAddresses {},
 }
 
 impl From<cw20_base::ContractError> for ContractError {
@@ -57,6 +63,10 @@ impl From<cw20_base::ContractError> for ContractError {
             | cw20_base::ContractError::InvalidPngHeader {}
             | cw20_base::ContractError::InvalidXmlPreamble {} => {
                 ContractError::Std(StdError::generic_err(err.to_string()))
+            }
+            cw20_base::ContractError::InvalidExpiration {} => ContractError::InvalidExpiration {},
+            cw20_base::ContractError::DuplicateInitialBalanceAddresses {} => {
+                ContractError::DuplicateInitialBalanceAddresses {}
             }
         }
     }
