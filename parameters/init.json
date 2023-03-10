@@ -1,0 +1,26 @@
+{
+    "name": "Bash Shell",
+    "symbol": "BASH",
+    "decimals": 6,
+    "initial_balances": [
+        {
+            "address": "tp1lz7rw3p48tsztjaqpnqzz7vzwfczrlkcrwkgqy",
+            "amount": "500"
+        },
+        {
+            "address": "tp1m97r57ms8dl7pxn0j4m7w80d6a5qvdp7pns80g",
+            "amount": "250"
+        }
+    ],
+    "frozen_balances": [
+        {
+            "address": "tp1lz7rw3p48tsztjaqpnqzz7vzwfczrlkcrwkgqy",
+            "amount": "400"
+        }
+    ],
+    "mint": {
+        "minter": "tp1c7apkgl4l8pw72nsh6uvvr7d6fy3c98hyg0sct",
+        "cap": "2000"
+    },
+    "bal_cap": "1000"
+}
