@@ -382,8 +382,9 @@ fn test_update_frozen_list() {
     let amount2 = Uint128::from(2600u128);
     let addr2 = String::from("addr0002");
     let bal_cap = Uint128::from(3000u128);
+    let minter = String::from("addr0004");
 
-    do_instantiate(
+    do_instantiate_with_minter(
         deps.as_mut(),
         addr1.clone(),
         amount1,
@@ -391,6 +392,8 @@ fn test_update_frozen_list() {
         amount2,
         frozen_amount,
         bal_cap,
+        minter.clone(),
+        None,
     );
 
     // checking initial frozen balance
@@ -399,8 +402,18 @@ fn test_update_frozen_list() {
         frozen_amount
     );
 
-    // adding frozen balance
+    // fail as sender is not minter
     let info = mock_info(addr2.as_ref(), &[]);
+    let env = mock_env();
+    let msg = Execute::UpdateFrozenList(UpdateType::Add(Cw20Coin {
+        address: addr1.clone(),
+        amount: frozen_amount,
+    }));
+    let err = execute(deps.as_mut(), env, info, msg).unwrap_err();
+    assert_eq!(err, ContractError::Unauthorized {});
+
+    // adding frozen balance
+    let info = mock_info(minter.as_ref(), &[]);
     let env = mock_env();
     let msg = Execute::UpdateFrozenList(UpdateType::Add(Cw20Coin {
         address: addr1.clone(),
@@ -415,7 +428,7 @@ fn test_update_frozen_list() {
     );
 
     // subtract frozen balance
-    let info = mock_info(addr2.as_ref(), &[]);
+    let info = mock_info(minter.as_ref(), &[]);
     let env = mock_env();
     let msg = Execute::UpdateFrozenList(UpdateType::Sub(Cw20Coin {
         address: addr1.clone(),
@@ -430,7 +443,7 @@ fn test_update_frozen_list() {
     );
 
     // discard frozen balance
-    let info = mock_info(addr2.as_ref(), &[]);
+    let info = mock_info(minter.as_ref(), &[]);
     let env = mock_env();
     let msg = Execute::UpdateFrozenList(UpdateType::Discard(addr1.clone()));
     let _ = execute(deps.as_mut(), env, info, msg).unwrap();

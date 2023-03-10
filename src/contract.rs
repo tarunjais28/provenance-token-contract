@@ -151,7 +151,7 @@ pub fn execute(
             marketing,
         )?),
         Execute::UploadLogo(logo) => Ok(execute_upload_logo(deps, env, info, logo)?),
-        Execute::UpdateFrozenList(update_type) => Ok(update_frozen_list(update_type, deps)?),
+        Execute::UpdateFrozenList(update_type) => Ok(update_frozen_list(info, update_type, deps)?),
     }
 }
 
@@ -310,7 +310,25 @@ pub fn send_from(
     )?)
 }
 
-fn update_frozen_list(update_type: UpdateType, deps: DepsMut) -> Result<Response, ContractError> {
+fn update_frozen_list(
+    info: MessageInfo,
+    update_type: UpdateType,
+    deps: DepsMut,
+) -> Result<Response, ContractError> {
+    // ensuring the sender is the minter
+    let config = TOKEN_INFO
+        .may_load(deps.storage)?
+        .ok_or(ContractError::Unauthorized {})?;
+    if config
+        .mint
+        .as_ref()
+        .ok_or(ContractError::Unauthorized {})?
+        .minter
+        != info.sender
+    {
+        return Err(ContractError::Unauthorized {});
+    }
+
     match update_type {
         UpdateType::Add(coin) => {
             let address = deps.api.addr_validate(&coin.address)?;
