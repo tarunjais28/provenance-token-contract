@@ -3,8 +3,8 @@ provenanced tx wasm execute \
     tp1p8tq94s0psqg4ycq43h76rfuwf44rxsuqlxn46gvr4646angvwms59rrp8 \
     '{
     "mint": {
-        "recipient": "tp1lz7rw3p48tsztjaqpnqzz7vzwfczrlkcrwkgqy",
-        "amount": "300"
+        "recipient": "tp1f8jfpg8tmewcsu2jjwwkhnzun6d30fzjrghvqs",
+        "amount": "800"
     }
 }' \
     --from $minter \

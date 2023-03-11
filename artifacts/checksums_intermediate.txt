@@ -1,2 +1,2 @@
-4a04b7075860f27b189a5f951fcec68ed8fcf65d87e4514963617b1e0893f623  ./target/wasm32-unknown-unknown/release/token_contract.wasm
+78cb6554b8eeb2a617963b1bfacab34718051f710491f3a060e00e802191892e  ./target/wasm32-unknown-unknown/release/token_contract.wasm
 a28d2aa0824a5add54f1e5ca92ac17afdb58eed105abd8aa2c55f97c09b80c5e  ./target/wasm32-unknown-unknown/release/tutorial.wasm

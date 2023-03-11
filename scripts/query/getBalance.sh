@@ -1,8 +1,8 @@
-echo "Balance for account: $tarun"
+echo "Balance for account: tp1f8jfpg8tmewcsu2jjwwkhnzun6d30fzjrghvqs"
 provenanced query wasm contract-state smart tp1p8tq94s0psqg4ycq43h76rfuwf44rxsuqlxn46gvr4646angvwms59rrp8 \
 	'{
     "balance": {
-        "address": "tp1lz7rw3p48tsztjaqpnqzz7vzwfczrlkcrwkgqy"
+        "address": "tp1f8jfpg8tmewcsu2jjwwkhnzun6d30fzjrghvqs"
     }
 }' \
     --testnet \

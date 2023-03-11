@@ -1,27 +1,4 @@
 use super::*;
-use crate::{
-    error::ContractError,
-    msg::{Execute, Instantiate, Query, UpdateType},
-};
-
-#[cfg(not(feature = "library"))]
-use cosmwasm_std::{
-    entry_point, to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdError, StdResult,
-    Uint128,
-};
-use cw2::set_contract_version;
-use cw20::BalanceResponse;
-use cw20_base::{
-    allowances::{
-        execute_burn_from, execute_decrease_allowance, execute_increase_allowance,
-        execute_send_from, execute_transfer_from, query_allowance,
-    },
-    contract::{
-        execute_burn, execute_mint, execute_send, execute_transfer, execute_update_marketing,
-        execute_upload_logo, query_balance, query_minter, query_token_info,
-    },
-    state::*,
-};
 
 // version info for migration info
 const CONTRACT_NAME: &str = "token_contract";
