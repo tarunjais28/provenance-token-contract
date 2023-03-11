@@ -1,0 +1,1 @@
+0f692605fbf8af8575ec958a655211bc187bc974106e0e1cde1d658947b30fa7  ./target/wasm32-unknown-unknown/release/custom_marker.wasm
