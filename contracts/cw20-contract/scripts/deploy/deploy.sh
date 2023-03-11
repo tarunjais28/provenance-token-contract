@@ -1,4 +1,4 @@
-wasm=/home/tarunjais/Documents/assignment/provenance-token-contract/artifacts/token_contract.wasm
+wasm=/home/tarunjais/Documents/assignment/provenance-token-contract/contracts/cw20-contract/artifacts/token_contract.wasm
 
 provenanced tx wasm store $wasm \
     --instantiate-anyof-addresses "$feebucket" \
