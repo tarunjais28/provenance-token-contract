@@ -3,6 +3,7 @@ use super::*;
 #[cw_serde]
 pub struct InitMsg {
     pub name: String,
+    pub country_codes: Vec<u8>,
 }
 
 #[cw_serde]
@@ -12,6 +13,7 @@ pub enum ExecuteMsg {
         denom: String,
         bal_cap: Uint128,
         frozen_bal: Uint128,
+        country_code: u8,
     },
     GrantAccess {
         denom: String,
@@ -25,6 +27,7 @@ pub enum ExecuteMsg {
     Mint {
         amount: Uint128,
         denom: String,
+        country_code: u8,
     },
     Burn {
         amount: Uint128,
@@ -40,10 +43,12 @@ pub enum ExecuteMsg {
         amount: Uint128,
         denom: String,
         to: String,
+        country_code: u8,
     },
     Withdraw {
         amount: Uint128,
         denom: String,
+        country_code: u8,
     },
 }
 
@@ -54,4 +59,6 @@ pub enum QueryMsg {
     GetByAddress { address: String },
     #[returns(provwasm_std::Marker)]
     GetByDenom { denom: String },
+    #[returns(provwasm_std::Marker)]
+    GetAuthorizedCountries {},
 }

@@ -49,3 +49,17 @@ pub fn ensure_unfrozen(
 
     Ok(Response::default())
 }
+
+pub fn ensure_authorized_country(
+    storage: &mut dyn Storage,
+    country_code: u8,
+) -> StdResult<Response<ProvenanceMsg>> {
+    let config = config_read(storage).load()?;
+
+    if !config.country_codes.contains(&country_code) {
+        let err = "Unauthorized Country";
+        return Err(StdError::generic_err(err));
+    }
+
+    Ok(Response::default())
+}

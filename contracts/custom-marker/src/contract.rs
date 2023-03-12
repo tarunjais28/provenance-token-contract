@@ -11,6 +11,7 @@ pub fn instantiate(
     // Create and save state
     config(deps.storage).save(&State {
         contract_name: msg.name.clone(),
+        country_codes: msg.country_codes,
     })?;
 
     // Create a name for the contract
@@ -39,21 +40,20 @@ pub fn execute(
             supply,
             denom,
             bal_cap,
-            frozen_bal,
-        } => try_create(deps, supply, denom, bal_cap, frozen_bal),
+            frozen_bal, country_code } => try_create(deps, supply, denom, bal_cap, frozen_bal, country_code),
         ExecuteMsg::GrantAccess { denom } => try_grant_access(denom, env.contract.address),
         ExecuteMsg::Finalize { denom } => try_finalize(denom),
         ExecuteMsg::Activate { denom } => try_activate(denom),
-        ExecuteMsg::Mint { amount, denom } => try_mint(deps, amount, denom),
+        ExecuteMsg::Mint {amount,denom, country_code } => try_mint(deps, amount, denom, country_code ),
         ExecuteMsg::Burn { amount, denom } => try_burn(amount, denom),
         ExecuteMsg::Cancel { denom } => try_cancel(deps, denom),
         ExecuteMsg::Destroy { denom } => try_destroy(deps, denom),
-        ExecuteMsg::Withdraw { amount, denom } => {
-            try_withdraw(deps, amount, denom, env.contract.address)
+        ExecuteMsg::Withdraw { amount, denom, country_code  } => {
+            try_withdraw(deps, amount, denom, env.contract.address, country_code )
         }
-        ExecuteMsg::Transfer { amount, denom, to } => {
+        ExecuteMsg::Transfer { amount, denom, to , country_code } => {
             let to = deps.api.addr_validate(&to)?;
-            try_transfer(deps, amount, denom, to, env.contract.address)
+            try_transfer(deps, amount, denom, to, env.contract.address, country_code )
         }
     }
 }
@@ -65,7 +65,11 @@ fn try_create(
     denom: String,
     bal_cap: Uint128,
     frozen_bal: Uint128,
+    country_code: u8,
 ) -> StdResult<Response<ProvenanceMsg>> {
+    // ensuring country is authorized
+    ensure_authorized_country(deps.storage, country_code)?;
+
     // create bal
     create_bal(deps.storage).save(
         denom.as_bytes(),
@@ -135,8 +139,14 @@ fn try_withdraw(
     amount: Uint128,
     denom: String,
     recipient: Addr,
+    country_code: u8,
 ) -> StdResult<Response<ProvenanceMsg>> {
+    // ensuring country is authorized
+    ensure_authorized_country(deps.storage, country_code)?;
+
+    // ensure balance is not frozen
     ensure_bal_not_frozen(deps, denom.clone(), amount)?;
+
     let marker_denom = denom.clone();
     let msg = withdraw_coins(&marker_denom, amount.u128(), &denom, recipient.clone())?;
 
@@ -156,7 +166,12 @@ fn try_mint(
     deps: DepsMut<ProvenanceQuery>,
     amount: Uint128,
     denom: String,
+    country_code: u8,
 ) -> StdResult<Response<ProvenanceMsg>> {
+    // ensuring country is authorized
+    ensure_authorized_country(deps.storage, country_code)?;
+
+    // ensure balance capital is not exceeded
     ensure_bal_cap_available(deps, denom.clone(), amount)?;
 
     let msg = mint_marker_supply(amount.u128(), &denom)?;
@@ -223,7 +238,12 @@ fn try_transfer(
     denom: String,
     to: Addr,
     from: Addr,
+    country_code: u8,
 ) -> StdResult<Response<ProvenanceMsg>> {
+    // ensuring country is authorized
+    ensure_authorized_country(deps.storage, country_code)?;
+
+    // ensure balance is not frozen
     ensure_bal_not_frozen(deps, denom.clone(), amount)?;
 
     let msg = transfer_marker_coins(amount.u128(), &denom, to.clone(), from.clone())?;
@@ -249,6 +269,7 @@ pub fn query(
     match msg {
         QueryMsg::GetByAddress { address } => try_get_marker_by_address(deps, address),
         QueryMsg::GetByDenom { denom } => try_get_marker_by_denom(deps, denom),
+        QueryMsg::GetAuthorizedCountries {} => try_get_auth_countries(deps),
     }
 }
 
@@ -271,4 +292,10 @@ fn try_get_marker_by_denom(
     let querier = ProvenanceQuerier::new(&deps.querier);
     let marker = querier.get_marker_by_denom(denom)?;
     to_binary(&marker)
+}
+
+// Query authorized countries.
+fn try_get_auth_countries(deps: Deps<ProvenanceQuery>) -> Result<QueryResponse, StdError> {
+    let config = config_read(deps.storage).load()?;
+    to_binary(&config.country_codes)
 }

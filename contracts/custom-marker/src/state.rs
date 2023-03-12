@@ -7,6 +7,8 @@ pub static BALANCE_KEY: &[u8] = b"balance";
 pub struct State {
     /// The root name of the contract.
     pub contract_name: String,
+    /// Country code
+    pub country_codes: Vec<u8>,
 }
 
 pub fn config(storage: &mut dyn Storage) -> Singleton<State> {
