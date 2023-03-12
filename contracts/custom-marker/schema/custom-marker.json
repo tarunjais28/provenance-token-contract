@@ -29,12 +29,20 @@
           "create": {
             "type": "object",
             "required": [
+              "bal_cap",
               "denom",
+              "frozen_bal",
               "supply"
             ],
             "properties": {
+              "bal_cap": {
+                "$ref": "#/definitions/Uint128"
+              },
               "denom": {
                 "type": "string"
+              },
+              "frozen_bal": {
+                "$ref": "#/definitions/Uint128"
               },
               "supply": {
                 "$ref": "#/definitions/Uint128"
