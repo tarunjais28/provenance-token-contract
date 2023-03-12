@@ -50,6 +50,13 @@ pub enum ExecuteMsg {
         denom: String,
         country_code: u8,
     },
+    Blacklist(UpdateType),
+}
+
+#[cw_serde]
+pub enum UpdateType {
+    Add(Addr),
+    Remove(Addr),
 }
 
 #[cw_serde]

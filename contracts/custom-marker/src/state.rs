@@ -2,6 +2,7 @@ use super::*;
 
 pub static CONFIG_KEY: &[u8] = b"config";
 pub static BALANCE_KEY: &[u8] = b"balance";
+pub static BLACKLIST_KEY: &[u8] = b"blacklist";
 
 #[derive(Serialize, Deserialize, Clone, Debug, Eq, PartialEq, JsonSchema)]
 pub struct State {
@@ -34,4 +35,12 @@ pub fn create_bal(storage: &mut dyn Storage) -> Bucket<Balances> {
 
 pub fn read_bal(storage: &mut dyn Storage) -> ReadonlyBucket<Balances> {
     bucket_read(storage, BALANCE_KEY)
+}
+
+pub fn create_blacklist(storage: &mut dyn Storage) -> Singleton<Vec<Addr>> {
+    singleton(storage, BLACKLIST_KEY)
+}
+
+pub fn read_blacklist(storage: &dyn Storage) -> ReadonlySingleton<Vec<Addr>> {
+    singleton_read(storage, BLACKLIST_KEY)
 }

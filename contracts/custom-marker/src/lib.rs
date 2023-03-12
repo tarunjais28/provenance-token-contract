@@ -8,12 +8,7 @@ pub mod state;
 #[cfg(test)]
 mod tests;
 
-use crate::{
-    error::ContractError,
-    helper::*,
-    msg::{ExecuteMsg, InitMsg, QueryMsg},
-    state::*,
-};
+use crate::{error::ContractError, helper::*, msg::*, state::*};
 use cosmwasm_schema::{cw_serde, QueryResponses};
 use cosmwasm_std::{
     attr, entry_point, to_binary, Addr, Deps, DepsMut, Env, MessageInfo, QueryResponse, Response,

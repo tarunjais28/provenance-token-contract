@@ -63,3 +63,19 @@ pub fn ensure_authorized_country(
 
     Ok(Response::default())
 }
+
+pub fn ensure_not_blacklisted(
+    storage: &mut dyn Storage,
+    address: Vec<Addr>,
+) -> StdResult<Response<ProvenanceMsg>> {
+    let blacklist = read_blacklist(storage).load()?;
+
+    for addr in address {
+        if blacklist.contains(&addr) {
+            let err = "Unauthorized: Account Blacklisted";
+            return Err(StdError::generic_err(err));
+        }
+    }
+
+    Ok(Response::default())
+}
