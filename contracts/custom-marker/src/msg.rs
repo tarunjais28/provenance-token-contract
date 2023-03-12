@@ -64,8 +64,13 @@ pub enum UpdateType {
 pub enum QueryMsg {
     #[returns(provwasm_std::Marker)]
     GetByAddress { address: String },
+
     #[returns(provwasm_std::Marker)]
     GetByDenom { denom: String },
-    #[returns(provwasm_std::Marker)]
+
+    #[returns(Vec<u8>)]
     GetAuthorizedCountries {},
+
+    #[returns(Vec<ShareHolder>)]
+    GetShareHolders { denom: String },
 }

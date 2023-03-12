@@ -3,6 +3,7 @@ use super::*;
 pub static CONFIG_KEY: &[u8] = b"config";
 pub static BALANCE_KEY: &[u8] = b"balance";
 pub static BLACKLIST_KEY: &[u8] = b"blacklist";
+pub static SHARE_HOLDER_KEY: &[u8] = b"share_holder";
 
 #[derive(Serialize, Deserialize, Clone, Debug, Eq, PartialEq, JsonSchema)]
 pub struct State {
@@ -43,4 +44,18 @@ pub fn create_blacklist(storage: &mut dyn Storage) -> Singleton<Vec<Addr>> {
 
 pub fn read_blacklist(storage: &dyn Storage) -> ReadonlySingleton<Vec<Addr>> {
     singleton_read(storage, BLACKLIST_KEY)
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug, Eq, PartialEq, JsonSchema)]
+pub struct ShareHolder {
+    pub address: Addr,
+    pub amount: Uint128,
+}
+
+pub fn manage_share_holders(storage: &mut dyn Storage) -> Bucket<HashMap<Addr, Uint128>> {
+    bucket(storage, SHARE_HOLDER_KEY)
+}
+
+pub fn read_share_holders(storage: &mut dyn Storage) -> ReadonlyBucket<HashMap<Addr, Uint128>> {
+    bucket_read(storage, SHARE_HOLDER_KEY)
 }

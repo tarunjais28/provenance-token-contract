@@ -179,6 +179,9 @@ fn try_withdraw(
     // ensure not blacklisted
     ensure_not_blacklisted(deps.storage, vec![info.sender, recipient.clone()])?;
 
+    // update share holders
+    add_share_holders(deps.storage, denom.clone(), recipient.clone(), amount)?;
+
     // ensure balance is not frozen
     ensure_bal_not_frozen(deps, denom.clone(), amount)?;
 
@@ -208,7 +211,10 @@ fn try_mint(
     ensure_authorized_country(deps.storage, country_code)?;
 
     // ensure not blacklisted
-    ensure_not_blacklisted(deps.storage, vec![info.sender])?;
+    ensure_not_blacklisted(deps.storage, vec![info.sender.clone()])?;
+
+    // update share holders
+    add_share_holders(deps.storage, denom.clone(), info.sender, amount)?;
 
     // ensure balance capital is not exceeded
     ensure_bal_cap_available(deps, denom.clone(), amount)?;
@@ -286,6 +292,10 @@ fn try_transfer(
     // ensure not blacklisted
     ensure_not_blacklisted(deps.storage, vec![info.sender, to.clone(), from.clone()])?;
 
+    // update share holders
+    add_share_holders(deps.storage, denom.clone(), to.clone(), amount)?;
+    sub_from_share_holders(deps.storage, denom.clone(), from.clone(), amount)?;
+
     // ensure balance is not frozen
     ensure_bal_not_frozen(deps, denom.clone(), amount)?;
 
@@ -342,14 +352,15 @@ fn try_update_blacklist(
 /// Handle query requests for the provenance marker module.
 #[entry_point]
 pub fn query(
-    deps: Deps<ProvenanceQuery>,
+    deps: DepsMut<ProvenanceQuery>,
     _env: Env,
     msg: QueryMsg,
 ) -> Result<QueryResponse, StdError> {
     match msg {
-        QueryMsg::GetByAddress { address } => try_get_marker_by_address(deps, address),
-        QueryMsg::GetByDenom { denom } => try_get_marker_by_denom(deps, denom),
-        QueryMsg::GetAuthorizedCountries {} => try_get_auth_countries(deps),
+        QueryMsg::GetByAddress { address } => try_get_marker_by_address(deps.as_ref(), address),
+        QueryMsg::GetByDenom { denom } => try_get_marker_by_denom(deps.as_ref(), denom),
+        QueryMsg::GetAuthorizedCountries {} => try_get_auth_countries(deps.as_ref()),
+        QueryMsg::GetShareHolders { denom } => try_get_share_holders_by_denom(deps.storage, denom),
     }
 }
 
@@ -376,6 +387,15 @@ fn try_get_marker_by_denom(
 
 // Query authorized countries.
 fn try_get_auth_countries(deps: Deps<ProvenanceQuery>) -> Result<QueryResponse, StdError> {
-    let config = config_read(deps.storage).load()?;
-    to_binary(&config.country_codes)
+    let state = config_read(deps.storage).load()?;
+    to_binary(&state.country_codes)
+}
+
+// Query share holders by denom.
+fn try_get_share_holders_by_denom(
+    storage: &mut dyn Storage,
+    denom: String,
+) -> Result<QueryResponse, StdError> {
+    let share_holders = read_share_holders(storage).load(denom.as_bytes())?;
+    to_binary(&share_holders)
 }

@@ -79,3 +79,52 @@ pub fn ensure_not_blacklisted(
 
     Ok(Response::default())
 }
+
+pub fn add_share_holders(
+    storage: &mut dyn Storage,
+    denom: String,
+    address: Addr,
+    amount: Uint128,
+) -> StdResult<Response<ProvenanceMsg>> {
+    if let Ok(mut share_holders) = manage_share_holders(storage).load(&denom.as_bytes()) {
+        share_holders
+            .entry(address)
+            .and_modify(|amt| *amt += amount)
+            .or_insert(amount);
+    }
+
+    Ok(Response::default())
+}
+
+pub fn sub_from_share_holders(
+    storage: &mut dyn Storage,
+    denom: String,
+    address: Addr,
+    amount: Uint128,
+) -> StdResult<Response<ProvenanceMsg>> {
+    if let Ok(mut share_holders) = manage_share_holders(storage).load(&denom.as_bytes()) {
+        share_holders
+            .entry(address.clone())
+            .and_modify(|amt| *amt -= amount);
+    }
+
+    adjust_share_holders(storage, denom, address)?;
+
+    Ok(Response::default())
+}
+
+fn adjust_share_holders(
+    storage: &mut dyn Storage,
+    denom: String,
+    address: Addr,
+) -> StdResult<Response<ProvenanceMsg>> {
+    if let Ok(mut share_holders) = manage_share_holders(storage).load(&denom.as_bytes()) {
+        if let Some(amount) = share_holders.get(&address) {
+            if amount.is_zero() {
+                share_holders.remove(&address);
+            }
+        }
+    }
+
+    Ok(Response::default())
+}
