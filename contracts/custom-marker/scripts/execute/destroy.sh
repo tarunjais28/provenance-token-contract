@@ -1,8 +1,8 @@
 provenanced tx wasm execute \
-    tp15wc3aqpd5gqs9xkn84nra6npy930fptujj7u6rjqflc64nptzmsqzc7p7h \
+    tp1pdmrrdr2w9xf0v9qndshg7gtwc6y3qeag3lvr65f9gcpjel62nysrmqpc7 \
     '{
     "destroy": {
-        "denom": "TarunCoin"
+        "denom": "SampleCoin"
     }
 }' \
     --from $minter \

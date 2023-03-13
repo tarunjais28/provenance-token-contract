@@ -1,6 +1,7 @@
 {
     "mint": {
-        "recipient": "tp1lz7rw3p48tsztjaqpnqzz7vzwfczrlkcrwkgqy",
-        "amount": "300"
+        "amount": "200",
+        "denom": "SampleCoin",
+        "country_code": 1
     }
 }

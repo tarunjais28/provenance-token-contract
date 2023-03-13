@@ -1,6 +1,8 @@
 {
     "transfer": {
-        "recipient": "tp1m97r57ms8dl7pxn0j4m7w80d6a5qvdp7pns80g",
-        "amount": "50"
+        "amount": "200",
+        "denom": "SampleCoin",
+        "country_code": 1,
+        "to": "tp1lz7rw3p48tsztjaqpnqzz7vzwfczrlkcrwkgqy"
     }
 }

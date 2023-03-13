@@ -1,5 +1,17 @@
 use super::*;
 
+pub fn check_bal_avalaility(
+    amount: Uint128,
+    capital: Uint128,
+    err: &str,
+) -> StdResult<Response<ProvenanceMsg>> {
+    if amount > capital {
+        return Err(StdError::generic_err(err));
+    }
+
+    Ok(Response::default())
+}
+
 pub fn ensure_bal_cap_available(
     deps: DepsMut<ProvenanceQuery>,
     denom: String,
@@ -10,10 +22,11 @@ pub fn ensure_bal_cap_available(
     let total_supply = Uint128::from_str(&marker.total_supply.to_string())?;
     let balances = read_bal(deps.storage).load(denom.as_bytes())?;
 
-    if (total_supply + amount) > balances.bal_cap {
-        let err = "Balance capital exceeded";
-        return Err(StdError::generic_err(err));
-    }
+    check_bal_avalaility(
+        total_supply + amount,
+        balances.bal_cap,
+        "Balance capital exceeded",
+    )?;
 
     Ok(Response::default())
 }
@@ -28,10 +41,7 @@ pub fn ensure_bal_not_frozen(
     let bal: Uint128 = marker.coins.iter().map(|coin| coin.amount).sum();
     let balances = read_bal(deps.storage).load(denom.as_bytes())?;
 
-    if amount > (bal - balances.frozen_bal) {
-        let err = "Balance is frozen";
-        return Err(StdError::generic_err(err));
-    }
+    check_bal_avalaility(amount, bal - balances.frozen_bal, "Balance is frozen")?;
 
     Ok(Response::default())
 }

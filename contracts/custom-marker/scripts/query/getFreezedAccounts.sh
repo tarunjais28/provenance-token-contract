@@ -1,9 +1,7 @@
 
 provenanced query wasm contract-state smart tp1pdmrrdr2w9xf0v9qndshg7gtwc6y3qeag3lvr65f9gcpjel62nysrmqpc7 \
 	'{
-    "get_by_denom": {
-        "denom": "SampleCoin"
-    }
+    "get_freezed_accounts": {}
 }' \
     --testnet \
 	--output json \

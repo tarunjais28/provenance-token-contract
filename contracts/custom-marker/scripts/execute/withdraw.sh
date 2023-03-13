@@ -1,9 +1,9 @@
 
 provenanced tx wasm execute \
-    tp15wc3aqpd5gqs9xkn84nra6npy930fptujj7u6rjqflc64nptzmsqzc7p7h \
+    tp1pdmrrdr2w9xf0v9qndshg7gtwc6y3qeag3lvr65f9gcpjel62nysrmqpc7 \
     '{
     "withdraw": {
-        "denom": "TarunCoin",
+        "denom": "SampleCoin",
         "amount": "800",
         "country_code": 91
     }

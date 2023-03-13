@@ -19,10 +19,9 @@ use cosmwasm_storage::{
     Singleton,
 };
 use provwasm_std::{
-    activate_marker, bind_name, burn_marker_supply, cancel_marker, create_marker, destroy_marker,
+    activate_marker, burn_marker_supply, cancel_marker, create_marker, destroy_marker,
     finalize_marker, grant_marker_access, mint_marker_supply, transfer_marker_coins,
-    withdraw_coins, MarkerAccess, MarkerType, NameBinding, ProvenanceMsg, ProvenanceQuerier,
-    ProvenanceQuery,
+    withdraw_coins, MarkerAccess, MarkerType, ProvenanceMsg, ProvenanceQuerier, ProvenanceQuery,
 };
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};

@@ -4,7 +4,7 @@ use super::*;
 #[entry_point]
 pub fn instantiate(
     deps: DepsMut<ProvenanceQuery>,
-    env: Env,
+    _env: Env,
     _info: MessageInfo,
     msg: InitMsg,
 ) -> Result<Response<ProvenanceMsg>, ContractError> {
@@ -14,17 +14,14 @@ pub fn instantiate(
         country_codes: msg.country_codes,
     })?;
 
-    // Create a name for the contract
-    let bind_name_msg = bind_name(&msg.name, env.contract.address, NameBinding::Restricted)?;
+    create_blacklist(deps.storage).save(&Vec::new())?;
 
     // Dispatch messages to the name module handler and emit an event.
-    Ok(Response::new()
-        .add_message(bind_name_msg)
-        .add_attributes(vec![
-            attr("action", "provwasm.contracts.custom_marker.init"),
-            attr("integration_test", "v2"),
-            attr("contract_name", msg.name),
-        ]))
+    Ok(Response::new().add_attributes(vec![
+        attr("action", "provwasm.contracts.custom_marker.init"),
+        attr("integration_test", "v2"),
+        attr("contract_name", msg.name),
+    ]))
 }
 
 /// Handle messages that create and interact with with native provenance markers.
@@ -58,14 +55,17 @@ pub fn execute(
             amount,
             denom,
             country_code,
-        } => try_withdraw(
+            to,
+        } => {
+            let to = deps.api.addr_validate(&to)?;
+            try_withdraw(
             deps,
             info,
             amount,
             denom,
-            env.contract.address,
+            to,
             country_code,
-        ),
+        )},
         ExecuteMsg::Transfer {
             amount,
             denom,
@@ -75,11 +75,10 @@ pub fn execute(
             let to = deps.api.addr_validate(&to)?;
             try_transfer(
                 deps,
-                info,
                 amount,
                 denom,
                 to,
-                env.contract.address,
+                info.sender,
                 country_code,
             )
         }
@@ -279,7 +278,6 @@ fn try_destroy(
 // Create and dispatch a message that will transfer coins from one account to another.
 fn try_transfer(
     deps: DepsMut<ProvenanceQuery>,
-    info: MessageInfo,
     amount: Uint128,
     denom: String,
     to: Addr,
@@ -290,7 +288,7 @@ fn try_transfer(
     ensure_authorized_country(deps.storage, country_code)?;
 
     // ensure not blacklisted
-    ensure_not_blacklisted(deps.storage, vec![info.sender, to.clone(), from.clone()])?;
+    ensure_not_blacklisted(deps.storage, vec![to.clone(), from.clone()])?;
 
     // update share holders
     add_share_holders(deps.storage, denom.clone(), to.clone(), amount)?;
@@ -352,15 +350,16 @@ fn try_update_blacklist(
 /// Handle query requests for the provenance marker module.
 #[entry_point]
 pub fn query(
-    deps: DepsMut<ProvenanceQuery>,
+    deps: Deps<ProvenanceQuery>,
     _env: Env,
     msg: QueryMsg,
 ) -> Result<QueryResponse, StdError> {
     match msg {
-        QueryMsg::GetByAddress { address } => try_get_marker_by_address(deps.as_ref(), address),
-        QueryMsg::GetByDenom { denom } => try_get_marker_by_denom(deps.as_ref(), denom),
-        QueryMsg::GetAuthorizedCountries {} => try_get_auth_countries(deps.as_ref()),
-        QueryMsg::GetShareHolders { denom } => try_get_share_holders_by_denom(deps.storage, denom),
+        QueryMsg::GetByAddress { address } => try_get_marker_by_address(deps, address),
+        QueryMsg::GetByDenom { denom } => try_get_marker_by_denom(deps, denom),
+        QueryMsg::GetAuthorizedCountries {} => try_get_auth_countries(deps),
+        QueryMsg::GetShareHolders { denom } => try_get_share_holders_by_denom(deps, denom),
+        QueryMsg::GetFreezedAccounts {} => try_get_freezed_accounts(deps),
     }
 }
 
@@ -393,9 +392,15 @@ fn try_get_auth_countries(deps: Deps<ProvenanceQuery>) -> Result<QueryResponse, 
 
 // Query share holders by denom.
 fn try_get_share_holders_by_denom(
-    storage: &mut dyn Storage,
+    deps: Deps<ProvenanceQuery>,
     denom: String,
 ) -> Result<QueryResponse, StdError> {
-    let share_holders = read_share_holders(storage).load(denom.as_bytes())?;
+    let share_holders = read_share_holders(deps.storage).load(denom.as_bytes()).ok();
     to_binary(&share_holders)
+}
+
+// Query freezed accounts.
+fn try_get_freezed_accounts(deps: Deps<ProvenanceQuery>) -> Result<QueryResponse, StdError> {
+    let accounts = read_blacklist(deps.storage).load().ok();
+    to_binary(&accounts)
 }

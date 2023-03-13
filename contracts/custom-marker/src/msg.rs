@@ -48,6 +48,7 @@ pub enum ExecuteMsg {
     Withdraw {
         amount: Uint128,
         denom: String,
+        to: String,
         country_code: u8,
     },
     Blacklist(UpdateType),
@@ -71,6 +72,9 @@ pub enum QueryMsg {
     #[returns(Vec<u8>)]
     GetAuthorizedCountries {},
 
-    #[returns(Vec<ShareHolder>)]
+    #[returns(Option<Vec<ShareHolder>>)]
     GetShareHolders { denom: String },
+
+    #[returns(Option<Vec<Addr>>)]
+    GetFreezedAccounts {},
 }

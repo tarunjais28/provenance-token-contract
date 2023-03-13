@@ -56,6 +56,6 @@ pub fn manage_share_holders(storage: &mut dyn Storage) -> Bucket<HashMap<Addr, U
     bucket(storage, SHARE_HOLDER_KEY)
 }
 
-pub fn read_share_holders(storage: &mut dyn Storage) -> ReadonlyBucket<HashMap<Addr, Uint128>> {
+pub fn read_share_holders(storage: &dyn Storage) -> ReadonlyBucket<HashMap<Addr, Uint128>> {
     bucket_read(storage, SHARE_HOLDER_KEY)
 }

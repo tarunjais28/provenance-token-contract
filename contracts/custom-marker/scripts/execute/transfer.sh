@@ -1,10 +1,12 @@
 
 provenanced tx wasm execute \
-    tp15wc3aqpd5gqs9xkn84nra6npy930fptujj7u6rjqflc64nptzmsqzc7p7h \
+    tp1pdmrrdr2w9xf0v9qndshg7gtwc6y3qeag3lvr65f9gcpjel62nysrmqpc7 \
     '{
     "transfer": {
-        "recipient": "tp1m97r57ms8dl7pxn0j4m7w80d6a5qvdp7pns80g",
-        "amount": "50"
+        "amount": "200",
+        "denom": "SampleCoin",
+        "country_code": 1,
+        "to": "tp1lz7rw3p48tsztjaqpnqzz7vzwfczrlkcrwkgqy"
     }
 }' \
     --from $tarun \

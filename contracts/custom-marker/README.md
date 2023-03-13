@@ -327,3 +327,15 @@ provenanced tx wasm execute \
 4. Authorized countries (will be denoted as country code, ie. 91 will be India)
 5. The ability to freeze entire accounts (unable to trade or transfer)
 6. Anyone that receives or holds the token will become a share holder (this can be through a trade as well). If a user balance goes to 0, then we will remove that person from the shareholders data structure or mapping.
+
+## Deployment Details
+
+### contract_id
+```
+286
+```
+
+### contract_address
+```
+tp1pdmrrdr2w9xf0v9qndshg7gtwc6y3qeag3lvr65f9gcpjel62nysrmqpc7
+```
