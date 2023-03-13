@@ -1,0 +1,9 @@
+{
+    "create": {
+        "supply": "100000",
+        "denom": "TarunCoin",
+        "bal_cap": "1000",
+        "frozen_bal": "500",
+        "country_code": 91
+    }
+}

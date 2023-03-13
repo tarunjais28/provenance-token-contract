@@ -1,0 +1,7 @@
+{
+    "withdraw": {
+        "denom": "TarunCoin",
+        "amount": "800",
+        "country_code": 91
+    }
+}
