@@ -27,7 +27,6 @@ pub enum ExecuteMsg {
     Mint {
         amount: Uint128,
         denom: String,
-        country_code: u8,
     },
     Burn {
         amount: Uint128,
@@ -48,16 +47,17 @@ pub enum ExecuteMsg {
     Withdraw {
         amount: Uint128,
         denom: String,
-        to: String,
+        balances: Balances,
         country_code: u8,
     },
-    Blacklist(UpdateType),
+    Blacklist(UpdateType<Addr>),
+    UpdateBalances((Addr, UpdateType<Balances>)),
 }
 
 #[cw_serde]
-pub enum UpdateType {
-    Add(Addr),
-    Remove(Addr),
+pub enum UpdateType<T> {
+    Add(T),
+    Remove(T),
 }
 
 #[cw_serde]

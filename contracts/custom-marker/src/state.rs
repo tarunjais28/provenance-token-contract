@@ -30,6 +30,18 @@ pub struct Balances {
     pub frozen_bal: Uint128,
 }
 
+impl Balances {
+    pub fn add(&mut self, other: Self) {
+        self.bal_cap += other.bal_cap;
+        self.frozen_bal += other.frozen_bal;
+    }
+
+    pub fn sub(&mut self, other: Self) {
+        self.bal_cap -= other.bal_cap;
+        self.frozen_bal -= other.frozen_bal;
+    }
+}
+
 pub fn create_bal(storage: &mut dyn Storage) -> Bucket<Balances> {
     bucket(storage, BALANCE_KEY)
 }

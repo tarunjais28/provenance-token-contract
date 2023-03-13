@@ -12,50 +12,42 @@ pub fn check_bal_avalaility(
     Ok(Response::default())
 }
 
+fn get_consolidated_balance(deps: &DepsMut<ProvenanceQuery>, address: Addr) -> StdResult<Uint128> {
+    let querier = ProvenanceQuerier::new(&deps.querier);
+    let marker = querier.get_marker_by_address(address)?;
+    Ok(marker.coins.iter().map(|coin| coin.amount).sum())
+}
+
 pub fn ensure_bal_cap_available(
     deps: DepsMut<ProvenanceQuery>,
-    denom: String,
+    address: Addr,
     amount: Uint128,
 ) -> StdResult<Response<ProvenanceMsg>> {
-    let querier = ProvenanceQuerier::new(&deps.querier);
-    let marker = querier.get_marker_by_denom(denom.clone())?;
-    let total_supply = Uint128::from_str(&marker.total_supply.to_string())?;
-    let balances = read_bal(deps.storage).load(denom.as_bytes())?;
+    let balances = read_bal(deps.storage).load(address.as_bytes())?;
+    let bal = get_consolidated_balance(&deps, address)?;
+
+    check_bal_avalaility(bal + amount, balances.bal_cap, "Balance capital exceeded")?;
+
+    Ok(Response::default())
+}
+
+pub fn ensure_bal_maintained(
+    deps: DepsMut<ProvenanceQuery>,
+    to: Addr,
+    from: Addr,
+    amount: Uint128,
+) -> StdResult<Response<ProvenanceMsg>> {
+    let from_balances = read_bal(deps.storage).load(to.as_bytes())?;
+    let balances = read_bal(deps.storage).load(from.as_bytes())?;
+    let from_bal = get_consolidated_balance(&deps, to)?;
+    let bal = get_consolidated_balance(&deps, from)?;
 
     check_bal_avalaility(
-        total_supply + amount,
-        balances.bal_cap,
-        "Balance capital exceeded",
+        amount,
+        from_bal - from_balances.frozen_bal,
+        "Balance is frozen",
     )?;
-
-    Ok(Response::default())
-}
-
-pub fn ensure_bal_not_frozen(
-    deps: DepsMut<ProvenanceQuery>,
-    denom: String,
-    amount: Uint128,
-) -> StdResult<Response<ProvenanceMsg>> {
-    let querier = ProvenanceQuerier::new(&deps.querier);
-    let marker = querier.get_marker_by_denom(denom.clone())?;
-    let bal: Uint128 = marker.coins.iter().map(|coin| coin.amount).sum();
-    let balances = read_bal(deps.storage).load(denom.as_bytes())?;
-
-    check_bal_avalaility(amount, bal - balances.frozen_bal, "Balance is frozen")?;
-
-    Ok(Response::default())
-}
-
-pub fn ensure_unfrozen(
-    storage: &mut dyn Storage,
-    denom: String,
-) -> StdResult<Response<ProvenanceMsg>> {
-    let balances = read_bal(storage).load(denom.as_bytes())?;
-
-    if !balances.frozen_bal.is_zero() {
-        let err = "Balance is frozen";
-        return Err(StdError::generic_err(err));
-    }
+    check_bal_avalaility(bal + amount, balances.bal_cap, "Balance capital exceeded")?;
 
     Ok(Response::default())
 }

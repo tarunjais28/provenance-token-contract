@@ -43,29 +43,16 @@ pub fn execute(
         ExecuteMsg::GrantAccess { denom } => try_grant_access(denom, env.contract.address),
         ExecuteMsg::Finalize { denom } => try_finalize(denom),
         ExecuteMsg::Activate { denom } => try_activate(denom),
-        ExecuteMsg::Mint {
-            amount,
-            denom,
-            country_code,
-        } => try_mint(deps, info, amount, denom, country_code),
+        ExecuteMsg::Mint { amount, denom } => try_mint(amount, denom),
         ExecuteMsg::Burn { amount, denom } => try_burn(amount, denom),
-        ExecuteMsg::Cancel { denom } => try_cancel(deps, denom),
-        ExecuteMsg::Destroy { denom } => try_destroy(deps, denom),
+        ExecuteMsg::Cancel { denom } => try_cancel(denom),
+        ExecuteMsg::Destroy { denom } => try_destroy(denom),
         ExecuteMsg::Withdraw {
             amount,
             denom,
             country_code,
-            to,
-        } => {
-            let to = deps.api.addr_validate(&to)?;
-            try_withdraw(
-            deps,
-            info,
-            amount,
-            denom,
-            to,
-            country_code,
-        )},
+            balances,
+        } => try_withdraw(deps, amount, denom, info.sender, country_code, balances),
         ExecuteMsg::Transfer {
             amount,
             denom,
@@ -73,16 +60,12 @@ pub fn execute(
             country_code,
         } => {
             let to = deps.api.addr_validate(&to)?;
-            try_transfer(
-                deps,
-                amount,
-                denom,
-                to,
-                info.sender,
-                country_code,
-            )
+            try_transfer(deps, amount, denom, to, info.sender, country_code)
         }
         ExecuteMsg::Blacklist(update_type) => try_update_blacklist(deps, info, update_type),
+        ExecuteMsg::UpdateBalances((address, update_type)) => {
+            try_update_balances(deps, update_type, address)
+        }
     }
 }
 
@@ -99,15 +82,6 @@ fn try_create(
 
     // ensuring country is authorized
     ensure_authorized_country(deps.storage, country_code)?;
-
-    // create bal
-    create_bal(deps.storage).save(
-        denom.as_bytes(),
-        &Balances {
-            bal_cap,
-            frozen_bal,
-        },
-    )?;
 
     let msg = create_marker(supply.u128(), &denom, MarkerType::Restricted)?;
 
@@ -166,23 +140,26 @@ fn try_activate(denom: String) -> StdResult<Response<ProvenanceMsg>> {
 // Create and dispatch a message that will withdraw coins from a marker.
 fn try_withdraw(
     deps: DepsMut<ProvenanceQuery>,
-    info: MessageInfo,
     amount: Uint128,
     denom: String,
     recipient: Addr,
     country_code: u8,
+    balances: Balances,
 ) -> StdResult<Response<ProvenanceMsg>> {
+    // store balances
+    create_bal(deps.storage).save(recipient.as_bytes(), &balances)?;
+
     // ensuring country is authorized
     ensure_authorized_country(deps.storage, country_code)?;
 
     // ensure not blacklisted
-    ensure_not_blacklisted(deps.storage, vec![info.sender, recipient.clone()])?;
+    ensure_not_blacklisted(deps.storage, vec![recipient.clone()])?;
 
     // update share holders
     add_share_holders(deps.storage, denom.clone(), recipient.clone(), amount)?;
 
-    // ensure balance is not frozen
-    ensure_bal_not_frozen(deps, denom.clone(), amount)?;
+    // ensure balance capital maintained
+    ensure_bal_cap_available(deps, recipient.clone(), amount)?;
 
     let marker_denom = denom.clone();
     let msg = withdraw_coins(&marker_denom, amount.u128(), &denom, recipient.clone())?;
@@ -199,25 +176,7 @@ fn try_withdraw(
 }
 
 // Create and dispatch a message that will mint coins into a marker.
-fn try_mint(
-    deps: DepsMut<ProvenanceQuery>,
-    info: MessageInfo,
-    amount: Uint128,
-    denom: String,
-    country_code: u8,
-) -> StdResult<Response<ProvenanceMsg>> {
-    // ensuring country is authorized
-    ensure_authorized_country(deps.storage, country_code)?;
-
-    // ensure not blacklisted
-    ensure_not_blacklisted(deps.storage, vec![info.sender.clone()])?;
-
-    // update share holders
-    add_share_holders(deps.storage, denom.clone(), info.sender, amount)?;
-
-    // ensure balance capital is not exceeded
-    ensure_bal_cap_available(deps, denom.clone(), amount)?;
-
+fn try_mint(amount: Uint128, denom: String) -> StdResult<Response<ProvenanceMsg>> {
     let msg = mint_marker_supply(amount.u128(), &denom)?;
 
     let res = Response::new()
@@ -245,8 +204,7 @@ fn try_burn(amount: Uint128, denom: String) -> StdResult<Response<ProvenanceMsg>
 }
 
 // Create and dispatch a message that will cancel a marker.
-fn try_cancel(deps: DepsMut<ProvenanceQuery>, denom: String) -> StdResult<Response<ProvenanceMsg>> {
-    ensure_unfrozen(deps.storage, denom.clone())?;
+fn try_cancel(denom: String) -> StdResult<Response<ProvenanceMsg>> {
     let msg = cancel_marker(&denom)?;
 
     let res = Response::new()
@@ -259,11 +217,7 @@ fn try_cancel(deps: DepsMut<ProvenanceQuery>, denom: String) -> StdResult<Respon
 }
 
 // Create and dispatch a message that will destroy a marker.
-fn try_destroy(
-    deps: DepsMut<ProvenanceQuery>,
-    denom: String,
-) -> StdResult<Response<ProvenanceMsg>> {
-    ensure_unfrozen(deps.storage, denom.clone())?;
+fn try_destroy(denom: String) -> StdResult<Response<ProvenanceMsg>> {
     let msg = destroy_marker(denom.clone())?;
 
     let res = Response::new()
@@ -294,8 +248,8 @@ fn try_transfer(
     add_share_holders(deps.storage, denom.clone(), to.clone(), amount)?;
     sub_from_share_holders(deps.storage, denom.clone(), from.clone(), amount)?;
 
-    // ensure balance is not frozen
-    ensure_bal_not_frozen(deps, denom.clone(), amount)?;
+    // ensure balance maintained
+    ensure_bal_maintained(deps, to.clone(), from.clone(), amount)?;
 
     let msg = transfer_marker_coins(amount.u128(), &denom, to.clone(), from.clone())?;
 
@@ -314,7 +268,7 @@ fn try_transfer(
 fn try_update_blacklist(
     deps: DepsMut<ProvenanceQuery>,
     info: MessageInfo,
-    update_type: UpdateType,
+    update_type: UpdateType<Addr>,
 ) -> StdResult<Response<ProvenanceMsg>> {
     // ensure not blacklisted
     ensure_not_blacklisted(deps.storage, vec![info.sender])?;
@@ -342,6 +296,36 @@ fn try_update_blacklist(
 
     let res = Response::new()
         .add_attribute("action", "update_blacklist")
+        .add_attribute("update_type", format!("{:?}", &update_type));
+
+    Ok(res)
+}
+
+// Update frozen balance.
+fn try_update_balances(
+    deps: DepsMut<ProvenanceQuery>,
+    update_type: UpdateType<Balances>,
+    address: Addr,
+) -> StdResult<Response<ProvenanceMsg>> {
+    // TODO: Need to add proper admin management
+
+    match update_type.clone() {
+        UpdateType::Add(bal) => {
+            if let Ok(mut balances) = create_bal(deps.storage).load(address.as_bytes()) {
+                balances.add(bal);
+            } else {
+                create_bal(deps.storage).save(address.as_bytes(), &bal)?;
+            }
+        }
+        UpdateType::Remove(bal) => {
+            let mut balances = create_bal(deps.storage).load(address.as_bytes())?;
+            balances.sub(bal);
+        }
+    }
+
+    let res = Response::new()
+        .add_attribute("action", "update_balances")
+        .add_attribute("address", format!("{:?}", &address))
         .add_attribute("update_type", format!("{:?}", &update_type));
 
     Ok(res)
