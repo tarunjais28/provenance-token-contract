@@ -1,0 +1,82 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "QueryMsg",
+  "oneOf": [
+    {
+      "type": "object",
+      "required": [
+        "get_by_address"
+      ],
+      "properties": {
+        "get_by_address": {
+          "type": "object",
+          "required": [
+            "address"
+          ],
+          "properties": {
+            "address": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "required": [
+        "get_by_denom"
+      ],
+      "properties": {
+        "get_by_denom": {
+          "type": "object",
+          "required": [
+            "denom"
+          ],
+          "properties": {
+            "denom": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "required": [
+        "get_authorized_countries"
+      ],
+      "properties": {
+        "get_authorized_countries": {
+          "type": "object",
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "required": [
+        "get_share_holders"
+      ],
+      "properties": {
+        "get_share_holders": {
+          "type": "object",
+          "required": [
+            "denom"
+          ],
+          "properties": {
+            "denom": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  ]
+}
