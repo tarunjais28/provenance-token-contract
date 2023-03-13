@@ -77,4 +77,7 @@ pub enum QueryMsg {
 
     #[returns(Option<Vec<Addr>>)]
     GetFreezedAccounts {},
+
+    #[returns(Balances)]
+    GetBalances { address: Addr },
 }

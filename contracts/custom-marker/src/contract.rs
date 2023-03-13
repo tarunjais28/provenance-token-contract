@@ -344,6 +344,7 @@ pub fn query(
         QueryMsg::GetAuthorizedCountries {} => try_get_auth_countries(deps),
         QueryMsg::GetShareHolders { denom } => try_get_share_holders_by_denom(deps, denom),
         QueryMsg::GetFreezedAccounts {} => try_get_freezed_accounts(deps),
+        QueryMsg::GetBalances { address } => try_get_balances(deps, address),
     }
 }
 
@@ -387,4 +388,10 @@ fn try_get_share_holders_by_denom(
 fn try_get_freezed_accounts(deps: Deps<ProvenanceQuery>) -> Result<QueryResponse, StdError> {
     let accounts = read_blacklist(deps.storage).load().ok();
     to_binary(&accounts)
+}
+
+// Query balances by address.
+fn try_get_balances(deps: Deps<ProvenanceQuery>, address: Addr) -> Result<QueryResponse, StdError> {
+    let balances = read_bal(deps.storage).load(address.as_bytes())?;
+    to_binary(&balances)
 }

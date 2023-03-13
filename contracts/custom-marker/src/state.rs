@@ -46,7 +46,7 @@ pub fn create_bal(storage: &mut dyn Storage) -> Bucket<Balances> {
     bucket(storage, BALANCE_KEY)
 }
 
-pub fn read_bal(storage: &mut dyn Storage) -> ReadonlyBucket<Balances> {
+pub fn read_bal(storage: &dyn Storage) -> ReadonlyBucket<Balances> {
     bucket_read(storage, BALANCE_KEY)
 }
 
