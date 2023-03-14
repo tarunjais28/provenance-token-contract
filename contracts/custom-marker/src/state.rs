@@ -21,7 +21,7 @@ pub fn config_read(storage: &dyn Storage) -> ReadonlySingleton<State> {
     singleton_read(storage, CONFIG_KEY)
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug, Eq, PartialEq, JsonSchema)]
+#[derive(Serialize, Deserialize, Clone, Debug, Eq, PartialEq, JsonSchema, Default)]
 pub struct Balances {
     /// balance cap for each token holder (eg. balance cap for each user = 1000,
     /// users can only hold up to 1000 tokens.
@@ -64,10 +64,10 @@ pub struct ShareHolder {
     pub amount: Uint128,
 }
 
-pub fn manage_share_holders(storage: &mut dyn Storage) -> Bucket<HashMap<Addr, Uint128>> {
+pub fn manage_share_holders(storage: &mut dyn Storage) -> Bucket<Vec<ShareHolder>> {
     bucket(storage, SHARE_HOLDER_KEY)
 }
 
-pub fn read_share_holders(storage: &dyn Storage) -> ReadonlyBucket<HashMap<Addr, Uint128>> {
+pub fn read_share_holders(storage: &dyn Storage) -> ReadonlyBucket<Vec<ShareHolder>> {
     bucket_read(storage, SHARE_HOLDER_KEY)
 }

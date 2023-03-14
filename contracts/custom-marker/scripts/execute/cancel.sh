@@ -1,9 +1,8 @@
-
 provenanced tx wasm execute \
-    tp1pdmrrdr2w9xf0v9qndshg7gtwc6y3qeag3lvr65f9gcpjel62nysrmqpc7 \
+    tp1k2zvmx90efp6r4qfedfakq8xqpzrhvn0d4w6787hckm6j86ch5jsu4mr4l \
     '{
-    "update_frozen_list": {
-        "discard": "tp1lz7rw3p48tsztjaqpnqzz7vzwfczrlkcrwkgqy"
+    "cancel": {
+        "denom": "MCutomMarker"
     }
 }' \
     --from $minter \
@@ -11,7 +10,7 @@ provenanced tx wasm execute \
     --home $prov_path \
     --chain-id pio-testnet-1 \
     --gas 4000000 \
-    --gas-prices 1905nhash \
+    --gas-prices 26905nhash \
     --broadcast-mode block \
     --yes \
     --testnet \

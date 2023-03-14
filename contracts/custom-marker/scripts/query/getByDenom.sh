@@ -1,8 +1,8 @@
 
-provenanced query wasm contract-state smart tp1pdmrrdr2w9xf0v9qndshg7gtwc6y3qeag3lvr65f9gcpjel62nysrmqpc7 \
+provenanced query wasm contract-state smart tp1k2zvmx90efp6r4qfedfakq8xqpzrhvn0d4w6787hckm6j86ch5jsu4mr4l \
 	'{
     "get_by_denom": {
-        "denom": "SampleCoin"
+        "denom": "MCutomMarker"
     }
 }' \
     --testnet \

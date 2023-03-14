@@ -1,7 +1,6 @@
 {
     "mint": {
         "amount": "200",
-        "denom": "SampleCoin",
-        "country_code": 1
+        "denom": "MCutomMarker"
     }
 }

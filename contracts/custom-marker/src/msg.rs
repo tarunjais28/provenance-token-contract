@@ -11,9 +11,6 @@ pub enum ExecuteMsg {
     Create {
         supply: Uint128,
         denom: String,
-        bal_cap: Uint128,
-        frozen_bal: Uint128,
-        country_code: u8,
     },
     GrantAccess {
         denom: String,

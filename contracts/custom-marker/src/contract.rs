@@ -33,13 +33,7 @@ pub fn execute(
     msg: ExecuteMsg,
 ) -> StdResult<Response<ProvenanceMsg>> {
     match msg {
-        ExecuteMsg::Create {
-            supply,
-            denom,
-            bal_cap,
-            frozen_bal,
-            country_code,
-        } => try_create(deps, supply, denom, bal_cap, frozen_bal, country_code),
+        ExecuteMsg::Create { supply, denom } => try_create(supply, denom),
         ExecuteMsg::GrantAccess { denom } => try_grant_access(denom, env.contract.address),
         ExecuteMsg::Finalize { denom } => try_finalize(denom),
         ExecuteMsg::Activate { denom } => try_activate(denom),
@@ -70,18 +64,8 @@ pub fn execute(
 }
 
 // Create and dispatch a message that will create a new restricted marker w/ proposed status.
-fn try_create(
-    deps: DepsMut<ProvenanceQuery>,
-    supply: Uint128,
-    denom: String,
-    bal_cap: Uint128,
-    frozen_bal: Uint128,
-    country_code: u8,
-) -> StdResult<Response<ProvenanceMsg>> {
+fn try_create(supply: Uint128, denom: String) -> StdResult<Response<ProvenanceMsg>> {
     // TODO: Need to add management of bal_cap, frozen_bal and country_code
-
-    // ensuring country is authorized
-    ensure_authorized_country(deps.storage, country_code)?;
 
     let msg = create_marker(supply.u128(), &denom, MarkerType::Restricted)?;
 
@@ -90,9 +74,7 @@ fn try_create(
         .add_attribute("action", "provwasm.contracts.marker.create")
         .add_attribute("integration_test", "v2")
         .add_attribute("marker_supply", supply)
-        .add_attribute("marker_denom", denom)
-        .add_attribute("balance_capital", bal_cap)
-        .add_attribute("frozen_balance", frozen_bal);
+        .add_attribute("marker_denom", denom);
 
     Ok(res)
 }
@@ -158,8 +140,8 @@ fn try_withdraw(
     // update share holders
     add_share_holders(deps.storage, denom.clone(), recipient.clone(), amount)?;
 
-    // ensure balance capital maintained
-    ensure_bal_cap_available(deps, recipient.clone(), amount)?;
+    // ensure balance capital maintained.
+    ensure_bal_cap_available(deps, recipient.clone(), denom.clone())?;
 
     let marker_denom = denom.clone();
     let msg = withdraw_coins(&marker_denom, amount.u128(), &denom, recipient.clone())?;
@@ -249,12 +231,18 @@ fn try_transfer(
     sub_from_share_holders(deps.storage, denom.clone(), from.clone(), amount)?;
 
     // ensure balance maintained
-    ensure_bal_maintained(deps, to.clone(), from.clone(), amount)?;
+    ensure_bal_maintained(deps, to.clone(), from.clone(), denom.clone())?;
 
-    let msg = transfer_marker_coins(amount.u128(), &denom, to.clone(), from.clone())?;
+    let transfers = CosmosMsg::Bank(BankMsg::Send {
+        to_address: to.to_string(),
+        amount: vec![Coin {
+            denom: denom.clone(),
+            amount,
+        }],
+    });
 
     let res = Response::new()
-        .add_message(msg)
+        .add_message(transfers)
         .add_attribute("action", "provwasm.contracts.marker.transfer")
         .add_attribute("integration_test", "v2")
         .add_attribute("funds", format!("{}{}", &amount, &denom))
@@ -311,15 +299,26 @@ fn try_update_balances(
 
     match update_type.clone() {
         UpdateType::Add(bal) => {
-            if let Ok(mut balances) = create_bal(deps.storage).load(address.as_bytes()) {
-                balances.add(bal);
-            } else {
-                create_bal(deps.storage).save(address.as_bytes(), &bal)?;
-            }
+            create_bal(deps.storage).update(address.as_bytes(), |bals_opt| -> StdResult<_> {
+                match bals_opt {
+                    Some(mut bals) => {
+                        bals.add(bal);
+                        Ok(bals)
+                    }
+                    None => Ok(bal),
+                }
+            })?;
         }
         UpdateType::Remove(bal) => {
-            let mut balances = create_bal(deps.storage).load(address.as_bytes())?;
-            balances.sub(bal);
+            create_bal(deps.storage).update(address.as_bytes(), |bals_opt| -> StdResult<_> {
+                match bals_opt {
+                    Some(mut bals) => {
+                        bals.sub(bal);
+                        Ok(bals)
+                    }
+                    None => Err(StdError::generic_err("Address not found")),
+                }
+            })?;
         }
     }
 

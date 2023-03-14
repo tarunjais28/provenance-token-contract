@@ -1,7 +1,11 @@
 {
     "withdraw": {
-        "denom": "SampleCoin",
+        "denom": "MCutomMarker",
         "amount": "800",
-        "country_code": 91
+        "country_code": 91,
+        "balances": {
+            "bal_cap": "1000",
+            "frozen_bal": "500"
+        }
     }
 }

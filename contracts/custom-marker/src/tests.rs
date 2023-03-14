@@ -30,6 +30,7 @@ fn valid_init() {
         mock_info("sender", &[]),
         InitMsg {
             name: "contract.pb".into(),
+            country_codes: vec![91, 1],
         },
     )
     .unwrap();
@@ -51,8 +52,6 @@ fn create_marker() {
     let msg = ExecuteMsg::Create {
         supply: Uint128::new(420),
         denom: "budz".into(),
-        bal_cap: Uint128::zero(),
-        frozen_bal: Uint128::zero(),
     };
 
     // Call execute and ensure a cosmos message was dispatched
@@ -167,6 +166,11 @@ fn withdraw_coins() {
     let msg = ExecuteMsg::Withdraw {
         amount: Uint128::new(20),
         denom: "budz".into(),
+        balances: Balances {
+            bal_cap: Uint128::zero(),
+            frozen_bal: Uint128::zero(),
+        },
+        country_code: 1,
     };
 
     // Call execute and ensure a cosmos message was dispatched
@@ -300,6 +304,7 @@ fn transfer_coins() {
         amount: Uint128::new(20),
         denom: "budz".into(),
         to: "toaddress".into(),
+        country_code: 91,
     };
 
     // Call execute and ensure a cosmos message was dispatched

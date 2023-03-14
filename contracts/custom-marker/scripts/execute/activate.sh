@@ -1,9 +1,9 @@
 
 provenanced tx wasm execute \
-    tp1pdmrrdr2w9xf0v9qndshg7gtwc6y3qeag3lvr65f9gcpjel62nysrmqpc7 \
+    tp1k2zvmx90efp6r4qfedfakq8xqpzrhvn0d4w6787hckm6j86ch5jsu4mr4l \
     '{
     "activate": {
-        "denom": "SampleCoin"
+        "denom": "MCutomMarker"
     }
 }' \
     --from $minter \

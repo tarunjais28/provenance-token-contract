@@ -1,5 +1,6 @@
 {
     "burn": {
-        "amount": "300"
-    }
+        "denom": "MCutomMarker",
+        "amount": "99200"
+      }
 }

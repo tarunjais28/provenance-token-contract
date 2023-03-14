@@ -1,0 +1,11 @@
+{
+    "update_balances": [
+        "tp1lz7rw3p48tsztjaqpnqzz7vzwfczrlkcrwkgqy",
+        {
+            "remove": {
+                "bal_cap": "0",
+                "frozen_bal": "500"
+            }
+        }
+    ]
+}

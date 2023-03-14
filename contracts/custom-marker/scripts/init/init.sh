@@ -1,4 +1,4 @@
-provenanced tx wasm instantiate 286 \
+provenanced tx wasm instantiate 304 \
 	'{
     "name": "custom-markerv1.0.0.cm.pb",
     "country_codes": [

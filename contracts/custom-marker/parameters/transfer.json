@@ -1,8 +1,8 @@
 {
     "transfer": {
         "amount": "200",
-        "denom": "SampleCoin",
+        "denom": "MCutomMarker",
         "country_code": 1,
-        "to": "tp1lz7rw3p48tsztjaqpnqzz7vzwfczrlkcrwkgqy"
+        "to": "tp1qu4p5u2yf45ytcraps5euwhd5zakqycrw8sl54"
     }
 }
