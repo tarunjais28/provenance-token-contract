@@ -64,6 +64,7 @@ pub fn execute(
         ExecuteMsg::UpdateBalances((address, update_type)) => {
             try_update_balances(deps, update_type, address)
         }
+        ExecuteMsg::UpdateCountryCode(update_type) => try_update_country_code(deps, update_type),
     }
 }
 
@@ -207,6 +208,7 @@ fn try_transfer(
     country_code: u8,
     balances: Balances,
 ) -> StdResult<Response<ProvenanceMsg>> {
+    // TODO: Don't allow to update next time
     // store balances
     create_bal(deps.storage).save(to.as_bytes(), &balances)?;
 
@@ -308,6 +310,39 @@ fn try_update_balances(
     let res = Response::new()
         .add_attribute("action", "update_balances")
         .add_attribute("address", format!("{:?}", &address))
+        .add_attribute("update_type", format!("{:?}", &update_type));
+
+    Ok(res)
+}
+
+// Update country code.
+fn try_update_country_code(
+    deps: DepsMut<ProvenanceQuery>,
+    update_type: UpdateType<u8>,
+) -> StdResult<Response<ProvenanceMsg>> {
+    // TODO: Need to add proper admin management
+
+    match update_type.clone() {
+        UpdateType::Add(code) => {
+            config(deps.storage).update(|mut state: State| -> StdResult<_> {
+                Ok({
+                    state.country_codes.push(code);
+                    state
+                })
+            })?;
+        }
+        UpdateType::Remove(code) => {
+            config(deps.storage).update(|mut state: State| -> StdResult<_> {
+                Ok({
+                    state.country_codes.retain(|cd| cd != &code);
+                    state
+                })
+            })?;
+        }
+    }
+
+    let res = Response::new()
+        .add_attribute("action", "update_blacklist")
         .add_attribute("update_type", format!("{:?}", &update_type));
 
     Ok(res)

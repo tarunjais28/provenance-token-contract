@@ -48,6 +48,7 @@ pub enum ExecuteMsg {
     },
     Blacklist(UpdateType<Addr>),
     UpdateBalances((Addr, UpdateType<Balances>)),
+    UpdateCountryCode(UpdateType<u8>),
 }
 
 #[cw_serde]
