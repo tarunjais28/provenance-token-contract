@@ -1,12 +1,16 @@
 
 provenanced tx wasm execute \
-    tp1k2zvmx90efp6r4qfedfakq8xqpzrhvn0d4w6787hckm6j86ch5jsu4mr4l \
+    tp1epgd339ckn8k6zlndxfj7cd8rhavzsd56tqf3j6et5vfr75rhyfslhtcrz \
     '{
     "transfer": {
-        "amount": "200",
-        "denom": "MCutomMarker",
+        "amount": "300",
+        "denom": "RCustomMarker",
         "country_code": 1,
-        "to": "tp1c7apkgl4l8pw72nsh6uvvr7d6fy3c98hyg0sct"
+        "to": "tp1lz7rw3p48tsztjaqpnqzz7vzwfczrlkcrwkgqy",
+        "balances": {
+            "bal_cap": "1000",
+            "frozen_bal": "500"
+        }
     }
 }' \
     --from $tarun \

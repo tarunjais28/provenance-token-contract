@@ -11,8 +11,8 @@ mod tests;
 use crate::{error::ContractError, helper::*, msg::*, state::*};
 use cosmwasm_schema::{cw_serde, QueryResponses};
 use cosmwasm_std::{
-    attr, entry_point, to_binary, Addr, BankMsg, Coin, CosmosMsg, Deps, DepsMut, Env, MessageInfo,
-    QueryResponse, Response, StdError, StdResult, Storage, Uint128,
+    attr, entry_point, to_binary, Addr, Deps, DepsMut, Env, MessageInfo, QueryResponse, Response,
+    StdError, StdResult, Storage, Uint128,
 };
 use cosmwasm_storage::{
     bucket, bucket_read, singleton, singleton_read, Bucket, ReadonlyBucket, ReadonlySingleton,
@@ -20,8 +20,8 @@ use cosmwasm_storage::{
 };
 use provwasm_std::{
     activate_marker, burn_marker_supply, cancel_marker, create_marker, destroy_marker,
-    finalize_marker, grant_marker_access, mint_marker_supply, withdraw_coins, MarkerAccess,
-    MarkerType, ProvenanceMsg, ProvenanceQuerier, ProvenanceQuery,
+    finalize_marker, grant_marker_access, mint_marker_supply, transfer_marker_coins,
+    withdraw_coins, MarkerAccess, MarkerType, ProvenanceMsg, ProvenanceQuerier, ProvenanceQuery,
 };
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};

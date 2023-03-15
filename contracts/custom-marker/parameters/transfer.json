@@ -1,8 +1,12 @@
 {
     "transfer": {
-        "amount": "200",
-        "denom": "MCutomMarker",
+        "amount": "500",
+        "denom": "RCustomMarker",
         "country_code": 1,
-        "to": "tp1qu4p5u2yf45ytcraps5euwhd5zakqycrw8sl54"
+        "to": "tp1lz7rw3p48tsztjaqpnqzz7vzwfczrlkcrwkgqy",
+        "balances": {
+            "bal_cap": "1000",
+            "frozen_bal": "500"
+        }
     }
 }

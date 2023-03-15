@@ -1,8 +1,8 @@
 
-provenanced query wasm contract-state smart tp1k2zvmx90efp6r4qfedfakq8xqpzrhvn0d4w6787hckm6j86ch5jsu4mr4l \
+provenanced query wasm contract-state smart tp1epgd339ckn8k6zlndxfj7cd8rhavzsd56tqf3j6et5vfr75rhyfslhtcrz \
 	'{
     "get_by_denom": {
-        "denom": "MCutomMarker"
+        "denom": "RCustomMarker"
     }
 }' \
     --testnet \

@@ -41,20 +41,24 @@ pub fn execute(
         ExecuteMsg::Burn { amount, denom } => try_burn(amount, denom),
         ExecuteMsg::Cancel { denom } => try_cancel(denom),
         ExecuteMsg::Destroy { denom } => try_destroy(denom),
-        ExecuteMsg::Withdraw {
-            amount,
-            denom,
-            country_code,
-            balances,
-        } => try_withdraw(deps, amount, denom, info.sender, country_code, balances),
+        ExecuteMsg::Withdraw { amount, denom } => try_withdraw(amount, denom, env.contract.address),
         ExecuteMsg::Transfer {
             amount,
             denom,
             to,
             country_code,
+            balances,
         } => {
             let to = deps.api.addr_validate(&to)?;
-            try_transfer(deps, amount, denom, to, info.sender, country_code)
+            try_transfer(
+                deps,
+                amount,
+                denom,
+                to,
+                env.contract.address,
+                country_code,
+                balances,
+            )
         }
         ExecuteMsg::Blacklist(update_type) => try_update_blacklist(deps, info, update_type),
         ExecuteMsg::UpdateBalances((address, update_type)) => {
@@ -121,28 +125,10 @@ fn try_activate(denom: String) -> StdResult<Response<ProvenanceMsg>> {
 
 // Create and dispatch a message that will withdraw coins from a marker.
 fn try_withdraw(
-    deps: DepsMut<ProvenanceQuery>,
     amount: Uint128,
     denom: String,
     recipient: Addr,
-    country_code: u8,
-    balances: Balances,
 ) -> StdResult<Response<ProvenanceMsg>> {
-    // store balances
-    create_bal(deps.storage).save(recipient.as_bytes(), &balances)?;
-
-    // ensuring country is authorized
-    ensure_authorized_country(deps.storage, country_code)?;
-
-    // ensure not blacklisted
-    ensure_not_blacklisted(deps.storage, vec![recipient.clone()])?;
-
-    // update share holders
-    add_share_holders(deps.storage, denom.clone(), recipient.clone(), amount)?;
-
-    // ensure balance capital maintained.
-    ensure_bal_cap_available(deps, recipient.clone(), denom.clone())?;
-
     let marker_denom = denom.clone();
     let msg = withdraw_coins(&marker_denom, amount.u128(), &denom, recipient.clone())?;
 
@@ -219,30 +205,27 @@ fn try_transfer(
     to: Addr,
     from: Addr,
     country_code: u8,
+    balances: Balances,
 ) -> StdResult<Response<ProvenanceMsg>> {
+    // store balances
+    create_bal(deps.storage).save(to.as_bytes(), &balances)?;
+
     // ensuring country is authorized
     ensure_authorized_country(deps.storage, country_code)?;
 
     // ensure not blacklisted
-    ensure_not_blacklisted(deps.storage, vec![to.clone(), from.clone()])?;
+    ensure_not_blacklisted(deps.storage, vec![to.clone()])?;
 
     // update share holders
     add_share_holders(deps.storage, denom.clone(), to.clone(), amount)?;
-    sub_from_share_holders(deps.storage, denom.clone(), from.clone(), amount)?;
 
-    // ensure balance maintained
-    ensure_bal_maintained(deps, to.clone(), from.clone(), denom.clone())?;
+    // ensure balance capital maintained.
+    ensure_bal_cap_available(deps, to.clone(), denom.clone())?;
 
-    let transfers = CosmosMsg::Bank(BankMsg::Send {
-        to_address: to.to_string(),
-        amount: vec![Coin {
-            denom: denom.clone(),
-            amount,
-        }],
-    });
+    let transfer = transfer_marker_coins(amount.u128(), &denom, to.clone(), from.clone())?;
 
     let res = Response::new()
-        .add_message(transfers)
+        .add_message(transfer)
         .add_attribute("action", "provwasm.contracts.marker.transfer")
         .add_attribute("integration_test", "v2")
         .add_attribute("funds", format!("{}{}", &amount, &denom))

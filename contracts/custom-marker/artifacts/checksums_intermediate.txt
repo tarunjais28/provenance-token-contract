@@ -1,1 +1,1 @@
-68ac75e1446cd1807c87183335c664f0b68ae49dd66c32e7dd74909acd6855d9  ./target/wasm32-unknown-unknown/release/custom_marker.wasm
+ee65606789fdc6171b5d93379e7063cc02b18c1d7a2dff974aa3ba0cb8715b32  ./target/wasm32-unknown-unknown/release/custom_marker.wasm

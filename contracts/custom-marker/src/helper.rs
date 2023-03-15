@@ -34,9 +34,7 @@ pub fn ensure_bal_cap_available(
     address: Addr,
     denom: String,
 ) -> StdResult<Response<ProvenanceMsg>> {
-    let balances = read_bal(deps.storage)
-        .load(address.as_bytes())
-        .unwrap_or_default();
+    let balances = read_bal(deps.storage).load(address.as_bytes())?;
     let bal = get_consolidated_balance(&deps, address, denom)?;
 
     check_bal_avalaility(bal, balances.bal_cap, "Balance capital exceeded")?;
