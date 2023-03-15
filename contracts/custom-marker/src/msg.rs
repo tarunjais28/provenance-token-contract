@@ -49,6 +49,11 @@ pub enum ExecuteMsg {
     Blacklist(UpdateType<Addr>),
     UpdateBalances((Addr, UpdateType<Balances>)),
     UpdateCountryCode(UpdateType<u8>),
+    UserGrantAccess {
+        denom: String,
+        to: Addr,
+        marker_access: Vec<MarkerAccess>,
+    },
 }
 
 #[cw_serde]

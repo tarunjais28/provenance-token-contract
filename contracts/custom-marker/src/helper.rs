@@ -1,3 +1,4 @@
+#![allow(dead_code)] 
 use super::*;
 
 pub fn check_bal_avalaility(

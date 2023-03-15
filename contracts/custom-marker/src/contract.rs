@@ -65,6 +65,11 @@ pub fn execute(
             try_update_balances(deps, update_type, address)
         }
         ExecuteMsg::UpdateCountryCode(update_type) => try_update_country_code(deps, update_type),
+        ExecuteMsg::UserGrantAccess {
+            denom,
+            to,
+            marker_access,
+        } => try_user_grant_access(denom, to, marker_access),
     }
 }
 
@@ -344,6 +349,24 @@ fn try_update_country_code(
     let res = Response::new()
         .add_attribute("action", "update_blacklist")
         .add_attribute("update_type", format!("{:?}", &update_type));
+
+    Ok(res)
+}
+
+// Create and dispatch a message that will grant permissions to a marker for an address.
+fn try_user_grant_access(
+    denom: String,
+    address: Addr,
+    marker_access: Vec<MarkerAccess>,
+) -> StdResult<Response<ProvenanceMsg>> {
+    let msg = grant_marker_access(&denom, address.clone(), marker_access)?;
+
+    let res = Response::new()
+        .add_message(msg)
+        .add_attribute("action", "provwasm.contracts.marker.grant_access")
+        .add_attribute("integration_test", "v2")
+        .add_attribute("marker_denom", denom)
+        .add_attribute("marker_addr", address);
 
     Ok(res)
 }
