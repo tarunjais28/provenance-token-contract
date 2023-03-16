@@ -70,6 +70,13 @@ pub fn execute(
             to,
             marker_access,
         } => try_user_grant_access(denom, to, marker_access),
+        ExecuteMsg::Send {
+            amount,
+            denom,
+            to,
+            balances,
+            country_code,
+        } => try_send(deps, amount, denom, to, from, country_code, balances),
     }
 }
 
@@ -367,6 +374,48 @@ fn try_user_grant_access(
         .add_attribute("integration_test", "v2")
         .add_attribute("marker_denom", denom)
         .add_attribute("marker_addr", address);
+
+    Ok(res)
+}
+
+// Create and dispatch a message that will transfer coins from one account to another.
+fn try_send(
+    deps: DepsMut<ProvenanceQuery>,
+    amount: Uint128,
+    denom: String,
+    to: Addr,
+    from: Addr,
+    country_code: u8,
+    balances: Balances,
+) -> StdResult<Response<ProvenanceMsg>> {
+    // TODO: Don't allow to update next time
+    // store balances
+    create_bal(deps.storage).save(to.as_bytes(), &balances)?;
+
+    // ensuring country is authorized
+    ensure_authorized_country(deps.storage, country_code)?;
+
+    // ensure not blacklisted
+    ensure_not_blacklisted(deps.storage, vec![to.clone()])?;
+
+    // update share holders
+    add_share_holders(deps.storage, denom.clone(), to.clone(), amount)?;
+
+    // ensure balance capital maintained.
+    ensure_bal_cap_available(deps, to.clone(), denom.clone())?;
+
+    let send = CosmosMsg::Bank(BankMsg::Send {
+        to_address: to.to_string(),
+        amount: vec![Coin { denom, amount }],
+    });
+
+    let res = Response::new()
+        .add_message(send)
+        .add_attribute("action", "provwasm.contracts.marker.transfer")
+        .add_attribute("integration_test", "v2")
+        .add_attribute("funds", format!("{}{}", &amount, &denom))
+        .add_attribute("to", to)
+        .add_attribute("from", from);
 
     Ok(res)
 }

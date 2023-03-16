@@ -11,8 +11,8 @@ mod tests;
 use crate::{error::ContractError, helper::*, msg::*, state::*};
 use cosmwasm_schema::{cw_serde, QueryResponses};
 use cosmwasm_std::{
-    attr, entry_point, to_binary, Addr, Deps, DepsMut, Env, MessageInfo, QueryResponse, Response,
-    StdError, StdResult, Storage, Uint128,
+    attr, entry_point, to_binary, Addr, BankMsg, Coin, CosmosMsg, Deps, DepsMut, Env, MessageInfo,
+    QueryResponse, Response, StdError, StdResult, Storage, Uint128,
 };
 use cosmwasm_storage::{
     bucket, bucket_read, singleton, singleton_read, Bucket, ReadonlyBucket, ReadonlySingleton,

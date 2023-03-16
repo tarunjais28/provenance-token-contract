@@ -54,6 +54,13 @@ pub enum ExecuteMsg {
         to: Addr,
         marker_access: Vec<MarkerAccess>,
     },
+    Send {
+        amount: Uint128,
+        denom: String,
+        to: Addr,
+        balances: Balances,
+        country_code: u8,
+    },
 }
 
 #[cw_serde]
